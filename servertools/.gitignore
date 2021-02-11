@@ -1,0 +1,6 @@
+discord.json
+.env
+node_modules/
+build/
+out/
+dist/

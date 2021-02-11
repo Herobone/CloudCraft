@@ -1,0 +1,4 @@
+*.md
+.*
+discord.json
+node_modules/
