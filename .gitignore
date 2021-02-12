@@ -4,3 +4,4 @@ tmp/
 *.tar.gz
 *.zip
 terraform.tfvars
+generated/
