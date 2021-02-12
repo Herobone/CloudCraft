@@ -34,7 +34,6 @@ terraform {
   required_providers {
     cloudflare = {
       source  = "cloudflare/cloudflare"
-      version = "~> 2.0"
     }
   }
 }
@@ -72,12 +71,6 @@ resource "google_compute_disk" "minecraft" {
   zone  = var.zone
   image = "cos-cloud/cos-stable"
 }
-
-# Permenant IP address, stays around when VM is off
-#resource "google_compute_address" "minecraft" {
-#  name   = "minecraft-ip"
-#  region = local.region
-#}
 
 # VM to run Minecraft, we use preemptable which will shutdown within 24 hours
 resource "google_compute_instance" "minecraft" {
