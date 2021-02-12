@@ -1,0 +1,6 @@
+#!/bin/bash
+cd servertools
+docker build -t herobone/discord-gcp-bot:latest .
+docker tag herobone/discord-gcp-bot ${container-image-name}
+docker push ${container-image-name}
+
