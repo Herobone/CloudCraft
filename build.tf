@@ -1,15 +1,20 @@
 # Hydrate docker template file into .build directory
-resource "local_file" "startup_script" {
-    depends_on = [ null_resource.prepare_bot ]
-  content = templatefile("${path.module}/start.sh.template", {
-    vm_name = google_compute_instance.minecraft.name
-    discord_token   = var.discord_token
-  })
-  filename = "${path.module}/tmp/bot/start.sh"
+
+data "google_container_registry_image" "discord-gcp-bot" {
+  name = "discord-gcp-bot"
+  region = "eu"
 }
 
-resource "null_resource" "prepare_bot" {
+resource "local_file" "startup_script" {
+  content = templatefile("${path.module}/build.sh.template", {
+    container-image-name = data.google_container_registry_image.discord-gcp-bot.image_url
+  })
+  filename = "${path.module}/tmp/bot/build.sh"
+}
+
+resource "null_resource" "build_docker_image" {
+  depends_on = [ local_file.startup_script ]
   provisioner "local-exec" {
-    command = "mkdir -p tmp/bot; cp servertools/package.json tmp/bot; cp -r servertools/src tmp/bot/src;"
+    command = "./tmp/bot/build.sh"
   }
 }
