@@ -90,6 +90,7 @@ resource "google_compute_instance" "minecraft" {
 
   metadata = {
     enable-oslogin = "TRUE"
+    google-logging-enabled    = "true"
   }
       
   boot_disk {
@@ -106,7 +107,8 @@ resource "google_compute_instance" "minecraft" {
 
   service_account {
     email  = google_service_account.minecraft.email
-    scopes = ["userinfo-email"]
+    #, "monitoring-write", "logging-write"
+    scopes = ["userinfo-email", "monitoring-write", "logging-write"]
   }
 
   scheduling {
