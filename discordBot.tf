@@ -1,8 +1,8 @@
 # Create service account to run service with no permissions
-#resource "google_service_account" "discord" {
+# resource "google_service_account" "discord" {
 #  account_id   = "discord-service-account"
 #  display_name = "Discord Service Account"
-#}
+# }
 
 resource "google_compute_network" "discord" {
  name = "discord"
@@ -70,9 +70,9 @@ resource "google_compute_instance" "discord-bot" {
   }
 
   service_account {
-    email  = "default"
+    #email  = "default"
+    #email  = google_service_account.discord.email
     scopes = [
-      # "cloud-platform"
       "compute-rw",
       "logging-write",
       "service-control",
