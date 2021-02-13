@@ -1,7 +1,7 @@
-FROM node:10
-ENV NODE_ENV=production
-ENV VM_NAME=minecraft
-ENV DISCORD_TOKEN=invalidtoken
+FROM node:12
+ENV NODE_ENV production
+ENV VM_NAME minecraft
+ENV DISCORD_TOKEN invalidtoken
 ADD . /env/bot
 WORKDIR /env/bot
 RUN npm install --only=prod

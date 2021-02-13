@@ -1,0 +1,4 @@
+mkdir -p /var/home
+export HOME=/var/home
+docker-credential-gcr configure-docker
+docker run -d --restart=always -e DISCORD_TOKEN=${discord_token} ${container-image-name}
