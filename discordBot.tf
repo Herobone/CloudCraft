@@ -1,48 +1,55 @@
 # Create service account to run service with no permissions
-resource "google_service_account" "discord" {
-  account_id   = "discord"
-  display_name = "discord"
-}
-
-module "gce-container-discord-bot" {
-  source = "terraform-google-modules/container-vm/google"
-  version = "~> 2.0"
-
-  container = {
-    image="gcr.io/google-samples/hello-app:1.0"
-    env = [
-      {
-        VM_NAME = google_compute_instance.minecraft.name
-        DISCORD_TOKEN = var.discord_token
-      }
-    ]
-  }
-
-  restart_policy = "Always"
-}
+#resource "google_service_account" "discord" {
+#  account_id   = "discord-service-account"
+#  display_name = "Discord Service Account"
+#}
 
 resource "google_compute_network" "discord" {
-  name = "discord"
+ name = "discord"
 }
 
+#Open the firewall for Minecraft traffic
+resource "google_compute_firewall" "allow-ssh" {
+  name    = "allow-ssh"
+  network = google_compute_network.discord.name
+  # ICMP (ping)
+  allow {
+    protocol = "icmp"
+  }
+  # SSH
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["discord"]
+}
+
+
 resource "google_compute_instance" "discord-bot" {
-  depends_on = [ local_file.startup_script ]
+  depends_on = [ null_resource.build_docker_image, data.local_file.start_script ]
   name         = "discord-bot"
   machine_type = "f1-micro"
-  zone         = "us-central1-a"
+  zone         = "us-east1-b"
   tags         = ["discord"]
   allow_stopping_for_update = true
 
-  metadata_startup_script = "/var/bot/start.sh;"
-
   metadata = {
-    gce-container-declaration = module.gce-container-discord-bot.metadata_value
+    google-logging-enabled    = "true"
+  }
+
+  metadata_startup_script = data.local_file.start_script.content
+
+  shielded_instance_config {
+    enable_integrity_monitoring = "true"
+    enable_secure_boot          = "false"
+    enable_vtpm                 = "true"
   }
       
   boot_disk {
     auto_delete = true
     initialize_params {
-      image = module.gce-container-discord-bot.source_image
+      image = "cos-cloud/cos-stable"
     }
   }
 
@@ -52,17 +59,26 @@ resource "google_compute_instance" "discord-bot" {
     }
   }
 
-  labels = {
-    container-vm = module.gce-container-discord-bot.vm_container_label
-  }
+  # labels = {
+  #   container-vm = module.gce-container-discord-bot.vm_container_label
+  # }
 
   scheduling {
-    preemptible       = false # Closes within 24 hours (sometimes sooner)
-    automatic_restart = true
+    preemptible         = false # Closes within 24 hours (sometimes sooner)
+    automatic_restart   = true
+    on_host_maintenance = "MIGRATE"
   }
 
   service_account {
-    email  = google_service_account.discord.email
-    scopes = ["default", "compute-rw"]
+    email  = "default"
+    scopes = [
+      # "cloud-platform"
+      "compute-rw",
+      "logging-write",
+      "service-control",
+      "service-management",
+      "storage-ro",
+      "monitoring-write"
+      ]
   }
 }
