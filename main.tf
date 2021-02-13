@@ -13,7 +13,6 @@ Help us make this simple for others to use by asking for help.
 Features
 - Runs [itzg/minecraft-server](https://hub.docker.com/r/itzg/minecraft-server/) Docker image
 - Preemtible VM (cheapest), shuts down automatically within 24h if you forget to stop the VM
-- Reserves a stable public IP, so the minecraft clients do not need to be reconfigured
 - Reserves the disk, so game data is remembered across sessions
 - Restricted service account, VM has no ability to consume GCP resources beyond its instance and disk
 - 2$ per month
@@ -86,10 +85,18 @@ resource "google_compute_instance" "minecraft" {
   #  docker exec -i mc rcon-cli
   # Once in rcon-cli you can "op <player_id>" to make someone an operator (admin)
   # Use 'sudo journalctl -u google-startup-scripts.service' to retrieve the startup script output
-  metadata_startup_script = "docker rm mc; docker run -d -p 25565:25565 -e EULA=TRUE -e VERSION=1.16.5 -v /var/minecraft:/data --name mc -e TYPE=FORGE -e FORGEVERSION=36.0.13 -e MEMORY=15G --restart on-failure itzg/minecraft-server:latest;"
+  metadata_startup_script = <<-EOT
+        docker rm mc
+        docker run -d -p 25565:25565 \
+          -e EULA=TRUE -e VERSION=1.16.5 \
+          -v /var/minecraft:/data \
+          --name mc \
+          -e TYPE=FORGE -e FORGEVERSION=36.0.13 -e MEMORY=15G \
+          --restart on-failure \
+          itzg/minecraft-server:latest
+        EOT
 
   metadata = {
-    enable-oslogin = "TRUE"
     google-logging-enabled    = "true"
   }
       
@@ -106,8 +113,8 @@ resource "google_compute_instance" "minecraft" {
   }
 
   service_account {
-    email  = google_service_account.minecraft.email
-    #, "monitoring-write", "logging-write"
+    #email  = google_service_account.minecraft.email
+    email = "default"
     scopes = ["userinfo-email", "monitoring-write", "logging-write"]
   }
 
