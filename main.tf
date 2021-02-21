@@ -98,6 +98,9 @@ resource "google_compute_instance" "minecraft" {
 
   metadata = {
     google-logging-enabled    = "true"
+    shutdown-script = <<-EOT
+        docker stop mc
+    EOT
   }
       
   boot_disk {
