@@ -94,6 +94,8 @@ resource "google_compute_instance" "minecraft" {
           -e TYPE=FORGE -e FORGEVERSION=36.0.13 -e MEMORY=15G \
           --restart on-failure \
           itzg/minecraft-server:latest
+        docker run -d hub.docker.com/herobone/cloudflare-ddns:latest update \
+          -name mc -zone ${var.cloudflare_zone_id} -token ${var.cloud_flare_api_token}
         EOT
 
   metadata = {
