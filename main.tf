@@ -30,11 +30,6 @@ terraform {
     prefix = "minecraft/state"
     bucket = "minecraft-config"
   }
-  required_providers {
-    cloudflare = {
-      source  = "cloudflare/cloudflare"
-    }
-  }
 }
 
 # You need to fill these locals out with the project, region and zone
