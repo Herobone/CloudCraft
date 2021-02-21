@@ -81,16 +81,16 @@ resource "google_compute_instance" "minecraft" {
   # Once in rcon-cli you can "op <player_id>" to make someone an operator (admin)
   # Use 'sudo journalctl -u google-startup-scripts.service' to retrieve the startup script output
   metadata_startup_script = <<-EOT
-        docker rm mc
+        docker rm mc;
         docker run -d -p 25565:25565 \
           -e EULA=TRUE -e VERSION=1.16.5 \
           -v /var/minecraft:/data \
           --name mc \
           -e TYPE=FORGE -e FORGEVERSION=36.0.13 -e MEMORY=15G \
           --restart on-failure \
-          itzg/minecraft-server:latest
-        docker run -d hub.docker.com/herobone/cloudflare-ddns:latest update \
-          -name mc -zone ${var.cloudflare_zone_id} -token ${var.cloud_flare_api_token}
+          itzg/minecraft-server:latest;
+        docker run -d herobone/cloudflare-ddns:latest update \
+          -name mc -zone ${var.cloudflare_zone_id} -token ${var.cloud_flare_api_token};
         EOT
 
   metadata = {
