@@ -114,13 +114,19 @@ resource "google_compute_instance" "minecraft" {
 
   service_account {
     #email  = google_service_account.minecraft.email
-    email = "default"
+    #email = "default"
     scopes = ["userinfo-email", "monitoring-write", "logging-write"]
   }
 
   scheduling {
     preemptible       = true # Closes within 24 hours (sometimes sooner)
     automatic_restart = false
+  }
+
+  shielded_instance_config {
+    enable_integrity_monitoring = "true"
+    enable_secure_boot          = "false"
+    enable_vtpm                 = "true"
   }
 }
 
