@@ -1,6 +1,6 @@
 .terraform/
 .terraform*
-tmp/
+.tmp/
 *.tar.gz
 *.zip
 terraform.tfvars
